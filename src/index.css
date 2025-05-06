@@ -1,0 +1,52 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  margin: auto;
+  max-width: 38rem;
+  padding: 2rem;
+}
+
+.search {
+  display: flex;
+  justify-content: center;
+}
+
+.div-temperature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.max-min-temperatures {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+#img-unit-temperature {
+  width: 10%;
+}
+
+#img-weather-status, #img-arrow-up, #img-arrow-down {
+  width: 10%;
+}
+
+.scrolling-zone-hours, #weather-forecast-zone {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+  white-space: nowrap;
+  border: 1px solid #ccc;
+}
+
+#city-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+  justify-content: center;
+}

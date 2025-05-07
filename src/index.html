@@ -2,27 +2,29 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Hello World!</title>
-    <link rel="stylesheet" href="index.css" />
+    <title>☀ Weather App ☽</title>
+    <link rel="stylesheet" href="style/index.css" />
   </head>
   <body>
-    <div class="search" id="search">
-      <input type="search" id="search-input" placeholder="Enter a coutry/city" value="Toulouse">
+    <div class="top-bar" id="search">
+      <image src="images/settings.png" id="img-settings">
+      <input type="search" id="search-input" placeholder="Enter a location">
       <button id="button-start-search">search</button>
     </div>
-    <h1 id="city-name"></h1>
+    <p id="city-name"></p>
     <div class="div-temperature">
-      <img src="images/sun.png" alt="image-weather-status" id="img-weather-status">
+      <img alt="image-weather-status" id="img-weather-status">
       <p id="temperature"></p>
-      <img src="images/celsius.png" id="img-unit-temperature">
+      <p id="degree-text">°</p>
     </div>
     <div class="max-min-temperatures">
-      <img src="images/arrow-up.png" id="img-arrow-up">
+      <img src="images/arrow_up.png" id="img-arrow-up">
       <p id="max-temperature">nan</p>
-      <img src="images/arrow-down.png" id="img-arrow-down">
+      <img src="images/arrow_down.png" id="img-arrow-down">
       <p id="min-temperature">nan</p>
     </div>
     <div class="daily-temperature">
+      <p id="today-text">Today</p>
       <div class="scrolling-zone-hours">
         <div id="h1">
           <p id="h1-hour"></p>
@@ -147,8 +149,8 @@
       </div>
     </div>
     <div id="weather-forecast">
-      <p id="weather-forecast-text">Weather forecast for next week</p>
-      <div id="weather-forecast-zone">
+      <p id="weather-forecast-text">Forecast</p>
+      <div class="weather-forecast-zone" id="weather-forecast-zone">
         <div id="d1">
           <p id="d1-day"></p>
           <img id="d1-img">
@@ -179,16 +181,7 @@
           <img id="d6-img">
           <p id="d6-temperature"></p>
         </div>
-        <div id="d7">
-          <p id="d7-day"></p>
-          <img id="d7-img">
-          <p id="d7-temperature"></p>
-        </div>
       </div>
-    </div>
-    <div id="windspeed"">
-      <img>
-      <p>Current windspeed</p>
     </div>
     <script src="scripts/weather.js"></script>
   </body>

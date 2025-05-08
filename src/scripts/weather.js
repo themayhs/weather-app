@@ -8,7 +8,7 @@ function imageByWeatherCode(code) {
         return `${directory}/sun_large.png`;
     } else if (code >= 2 && code <= 3) {
         return `${directory}/sun_cloud_large.png`;
-    } else if (code >= 51 && code <= 57) {
+    } else if (code >= 45 && code <= 57) {
         return `${directory}/cloud_large.png`;
     } else if (code >= 61 && code <= 67 || code >= 80 && code <= 82) {
         return `${directory}/rain_large.png`;
@@ -20,12 +20,7 @@ function imageByWeatherCode(code) {
     return "Invalid code provided";
 }
 
-function formattingCityName(city) {
-    return city[0].toUpperCase() + city.substring(1).toLowerCase();
-}
-
 function backgroundByWeatherCode(code) {
-    const directory = "assets_weather/backgrounds"
     if (sunUp) {
         if (code >= 0 && code <= 1) {
             return "linear-gradient(#F2E3D3 65%,#E15F45 100%)";
@@ -40,14 +35,15 @@ function backgroundByWeatherCode(code) {
         } else if (code >= 95 && code <= 99) {
             return "linear-gradient(#F8E564 65%,#92A1B3 100%)";
         }
-        return "linear-gradient(#3B6493,#001F43)";
     }
-    //`linear-gradient(${c1} 65%, ${c2} 100%)`
-    return "Invalid code provided";
+    return "linear-gradient(#3B6493,#001F43)";;
+}
+
+function formattingCityName(city) {
+    return city[0].toUpperCase() + city.substring(1).toLowerCase();
 }
 
 function displayInfo(city, data) {
-    console.log(data);
     const temperature = data.current_weather.temperature;
     document.getElementById("city-name").innerHTML = formattingCityName(city);
     document.getElementById("temperature").innerHTML = temperature;
@@ -57,10 +53,37 @@ function displayInfo(city, data) {
     document.getElementById("min-temperature").innerHTML = data.daily.temperature_2m_min[0];
 
     const weatherCode = data.current_weather.weathercode;
-    console.log(weatherCode);
     document.getElementById("img-weather-status").src = imageByWeatherCode(weatherCode);
 
     // changing the background according to the weather
+    const localHourISO = data.current_weather.time.slice(-5,-3);
+
+    let idx = 0;
+    let sunriseHour = +data.daily.sunrise[idx].slice(-5,-3);
+    let currHour = +localHourISO.slice(-2);
+    if (sunriseHour > currHour) {
+        idx++;
+        sunriseHour = +data.daily.sunrise[idx].slice(-5,-3);
+    }
+
+    let sunsetHour = +data.daily.sunset[idx].slice(-5,-3);
+    if (sunsetHour > currHour) {
+        idx++;
+        sunsetHour = +data.daily.sunset[idx].slice(-5,-3);
+    }
+    console.log(currHour, sunriseHour, sunsetHour);
+    if (currHour > sunsetHour || currHour < sunriseHour) {
+        sunUp = false;
+        document.getElementById("style-id").href = "style/index_night.css";
+        document.getElementById("img-weather-status").src = "assets_weather/large_icons/moon.png";
+        document.getElementById("img-arrow-up").src = "images/arrow_up_white.png";
+        document.getElementById("img-arrow-down").src = "images/arrow_down_white.png";
+    } else {
+        sunUp = true;
+        document.getElementById("style-id").href = "style/index_day.css";
+        document.getElementById("img-arrow-up").src = "images/arrow_up.png";
+        document.getElementById("img-arrow-down").src = "images/arrow_down.png";
+    }
     document.body.style.background = backgroundByWeatherCode(weatherCode);
 
     document.getElementById("search-input").textContent = "";
@@ -114,26 +137,8 @@ async function getCoordinates(city) {
     };
 }
 
-async function getWeather() {
-    let city = document.getElementById("search-input").value;
-    if (city) {
-        document.getElementById("search-input").value = "";
-    } else {
-        city = defaultCity;
-    }
-
-    const {lat, lon} = await getCoordinates(city);
-    const urlTemp = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset&timezone=auto&current_weather=true`;
-    const temp = await fetch(urlTemp);
-    const data = await temp.json();
-
-    displayInfo(city, data);
-    await getHourlyWeather(lat, lon);
-    await getWeatherForecast(lat, lon);
-}
-
 async function getHourlyWeather(lat, lon) {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weather_code&timezone=auto&current_weather=true`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weather_code&timezone=auto&current_weather=true&daily=sunrise,sunset`;
     const temp = await fetch(url);
     const data = await temp.json();
 
@@ -141,14 +146,65 @@ async function getHourlyWeather(lat, lon) {
 
     const indexNow = data.hourly.time.findIndex(t => t.startsWith(localHourISO));
     const next24Hours = data.hourly.temperature_2m.slice(indexNow, indexNow + 24);
-    const weatherCodes24 = data.hourly.weather_code.slice(indexNow, indexNow + 25);
 
+    // setting night
     for (let i = 1; i <= 24; i++) {
         document.getElementById(`h${i}-hour`).innerHTML = (indexNow + i - 1) % 24 + " h";
+        document.getElementById(`h${i}-img`).src = "assets_weather/large_icons/moon.png";
         document.getElementById(`h${i}-temperature`).innerHTML = next24Hours[i - 1];
-        const pathImg = imageByWeatherCode(+weatherCodes24[i]);
-        document.getElementById(`h${i}-img`).src = pathImg;
     }
+
+    // setting sunrise and sunset
+    let idx = 0;
+    let sunriseHour = +data.daily.sunrise[idx].slice(-5,-3);
+    let currHour = +localHourISO.slice(-2);
+    if (sunriseHour < currHour) {
+        idx++;
+        sunriseHour = +data.daily.sunrise[idx].slice(-5,-3);
+    }
+    let idxSunrise = (sunriseHour - indexNow + 1) % 24;
+    if (idxSunrise <= 0) {
+        idxSunrise += 24;
+    }
+
+    document.getElementById(`h${idxSunrise}-hour`).innerHTML = data.daily.sunrise[idx].slice(-5);
+    document.getElementById(`h${idxSunrise}-img`).src = "assets_weather/large_icons/sunrise.png";
+
+    idx = 0;
+    let sunsetHour = +data.daily.sunset[idx].slice(-5,-3);
+    if (sunsetHour < currHour) {
+        sunsetHour = +data.daily.sunset[++idx].slice(-5,-3);
+    }
+
+    let idxSunset = (sunsetHour - indexNow + 1) % 24;
+    
+    if (idxSunset <= 0) {
+        idxSunset += 24;
+    }
+    document.getElementById(`h${idxSunset}-hour`).innerHTML = data.daily.sunset[idx].slice(-5);
+    document.getElementById(`h${idxSunset}-img`).src = "assets_weather/large_icons/sunset.png";
+
+    // setting hours
+    
+    const weatherCodes24 = data.hourly.weather_code.slice(indexNow, indexNow + 25);
+
+    if (idxSunrise < idxSunset) {
+        for (let i = 1; i <= 24; i++) {
+            if (i > idxSunrise && i < idxSunset) {
+                const pathImg = imageByWeatherCode(+weatherCodes24[i]);
+                document.getElementById(`h${i}-img`).src = pathImg;
+            }
+        }
+    } else {
+        for (let i = 1; i <= 24; i++) {
+            if (i < idxSunset || i > idxSunrise) {
+                const pathImg = imageByWeatherCode(+weatherCodes24[i]);
+                document.getElementById(`h${i}-img`).src = pathImg;
+            }
+        }
+    }
+
+    
 }
 
 async function getWeatherForecast(lat, lon) {
@@ -171,6 +227,24 @@ async function getWeatherForecast(lat, lon) {
         document.getElementById(`d${i}-img`).src = imageByWeatherCode(weather_code[i]);
         document.getElementById(`d${i}-temperature`).innerHTML = temperature[i];
     }
+}
+
+async function getWeather() {
+    let city = document.getElementById("search-input").value;
+    if (city) {
+        document.getElementById("search-input").value = "";
+    } else {
+        city = defaultCity;
+    }
+
+    const {lat, lon} = await getCoordinates(city);
+    const urlTemp = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset&timezone=auto&current_weather=true`;
+    const temp = await fetch(urlTemp);
+    const data = await temp.json();
+
+    displayInfo(city, data);
+    await getHourlyWeather(lat, lon);
+    await getWeatherForecast(lat, lon);
 }
 
 // searching button

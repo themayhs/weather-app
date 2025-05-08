@@ -3,11 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>☀ Weather App ☽</title>
-    <link rel="stylesheet" href="style/index.css" />
+    <link rel="stylesheet" id="style-id" href="style/index_day.css" />
   </head>
   <body>
     <div class="top-bar" id="search">
-      <image src="images/settings.png" id="img-settings">
       <input type="search" id="search-input" placeholder="Enter a location">
       <button id="button-start-search">search</button>
     </div>
@@ -148,7 +147,7 @@
         </div>
       </div>
     </div>
-    <div id="weather-forecast">
+    <div class="weather-forecast">
       <p id="weather-forecast-text">Forecast</p>
       <div class="weather-forecast-zone" id="weather-forecast-zone">
         <div id="d1">
@@ -183,6 +182,6 @@
         </div>
       </div>
     </div>
-    <script src="scripts/weather.js"></script>
+    <script id="script-index" src="scripts/weather.js"></script>
   </body>
 </html>

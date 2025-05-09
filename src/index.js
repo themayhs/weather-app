@@ -10,7 +10,7 @@ let mainWindow;
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 400,
-    height: 819,
+    height: 812,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -21,7 +21,7 @@ const createWindow = () => {
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 };
 
 app.whenReady().then(() => {

@@ -2,7 +2,7 @@ statusCelsius = true;
 defaultCity = "Toulouse"
 sunUp = true;
 
-function imageByWeatherCode(code) {
+function imageLargeByWeatherCode(code) {
     const directory = "assets_weather/large_icons"
     if (code >= 0 && code <= 1) {
         return `${directory}/sun_large.png`;
@@ -18,6 +18,42 @@ function imageByWeatherCode(code) {
         return `${directory}/thunder_large.png`;
     }
     return "Invalid code provided";
+}
+
+function imageSmallByWeatherCode(code) {
+    if (code >= 0 && code <= 1) {
+        return `assets_weather/large_icons/sun_large.png`;
+    } else if (code >= 2 && code <= 3) {
+        return `assets_weather/large_icons/sun_cloud_large.png`;
+    } else if (code >= 45 && code <= 57) {
+        return `assets_weather/large_icons/cloud_large.png`;
+    } else if (code >= 61 && code <= 67 || code >= 80 && code <= 82) {
+        return `assets_weather/small_icons/rain_small.png`;
+    } else if (code >= 71 && code <= 77 || code >= 85 && code <= 86) {
+        return `assets_weather/small_icons/snow_small.png`;
+    } else if (code >= 95 && code <= 99) {
+        return `assets_weather/small_icons/thunder_small.png`;
+    }
+    return "Invalid code provided";
+}
+
+function scrollbarByWeatherCode(code) {
+    if (sunUp) {
+        if (code >= 0 && code <= 1) {
+                return "#EBB5A2";
+        } else if (code >= 2 && code <= 3) {
+            return "#D99284";
+        } else if (code >= 51 && code <= 57) {
+            return "#D8D8D8";
+        } else if (code >= 61 && code <= 67 || code >= 80 && code <= 82) {
+            return "#7F9BBC";
+        } else if (code >= 71 && code <= 77 || code >= 85 && code <= 86) {
+            return "#98B3CA";
+        } else if (code >= 95 && code <= 99) {
+            return "#7D8C9E";
+        }
+    }
+    return "#3B6493";
 }
 
 function backgroundByWeatherCode(code) {
@@ -36,7 +72,7 @@ function backgroundByWeatherCode(code) {
             return "linear-gradient(#F8E564 65%,#92A1B3 100%)";
         }
     }
-    return "linear-gradient(#3B6493,#001F43)";;
+    return "linear-gradient(#3B6493,#001F43)";
 }
 
 function formattingCityName(city) {
@@ -53,7 +89,7 @@ function displayInfo(city, data) {
     document.getElementById("min-temperature").innerHTML = data.daily.temperature_2m_min[0];
 
     const weatherCode = data.current_weather.weathercode;
-    document.getElementById("img-weather-status").src = imageByWeatherCode(weatherCode);
+    document.getElementById("img-weather-status").src = imageLargeByWeatherCode(weatherCode);
 
     // changing the background according to the weather
     const localHourISO = data.current_weather.time.slice(-5,-3);
@@ -85,6 +121,25 @@ function displayInfo(city, data) {
         document.getElementById("img-arrow-down").src = "images/arrow_down.png";
     }
     document.body.style.background = backgroundByWeatherCode(weatherCode);
+
+    console.log(scrollbarByWeatherCode(weatherCode));
+
+    // changing scrollbar color
+    document.getElementById("scrollbar-id").innerHTML = 
+        `.scrolling-zone-hours::-webkit-scrollbar {
+            width: 2px;
+            height: 8px;
+        }
+
+        .scrolling-zone-hours::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrolling-zone-hours::-webkit-scrollbar-thumb {
+            background: ${scrollbarByWeatherCode(weatherCode)};
+            border-radius: 20px;
+            width: 5px;
+        }`;
 
     document.getElementById("search-input").textContent = "";
 }
@@ -191,20 +246,18 @@ async function getHourlyWeather(lat, lon) {
     if (idxSunrise < idxSunset) {
         for (let i = 1; i <= 24; i++) {
             if (i > idxSunrise && i < idxSunset) {
-                const pathImg = imageByWeatherCode(+weatherCodes24[i]);
+                const pathImg = imageSmallByWeatherCode(+weatherCodes24[i]);
                 document.getElementById(`h${i}-img`).src = pathImg;
             }
         }
     } else {
         for (let i = 1; i <= 24; i++) {
             if (i < idxSunset || i > idxSunrise) {
-                const pathImg = imageByWeatherCode(+weatherCodes24[i]);
+                const pathImg = imageSmallByWeatherCode(+weatherCodes24[i]);
                 document.getElementById(`h${i}-img`).src = pathImg;
             }
         }
     }
-
-    
 }
 
 async function getWeatherForecast(lat, lon) {
@@ -219,12 +272,12 @@ async function getWeatherForecast(lat, lon) {
 
     // next day
     document.getElementById("d1-day").innerHTML = "Next";
-    document.getElementById("d1-img").src = imageByWeatherCode(weather_code[1]);
+    document.getElementById("d1-img").src = imageSmallByWeatherCode(weather_code[1]);
     document.getElementById("d1-temperature").innerHTML = temperature[1];
 
     for (let i = 2; i < 7; i++) {
         document.getElementById(`d${i}-day`).innerHTML = days[(idxDay + i) % 7];
-        document.getElementById(`d${i}-img`).src = imageByWeatherCode(weather_code[i]);
+        document.getElementById(`d${i}-img`).src = imageSmallByWeatherCode(weather_code[i]);
         document.getElementById(`d${i}-temperature`).innerHTML = temperature[i];
     }
 }
@@ -251,8 +304,12 @@ async function getWeather() {
 const btnSearch = document.getElementById("button-start-search");
 btnSearch.addEventListener("click",() => getWeather());
 
-/* // convert button to celsius/fahrenheit
-const btnCelsius = document.getElementById("img-unit-temperature");
-btnCelsius.addEventListener("click",() => convertTemperature()); */
+// enter event to search
+window.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      getWeather();
+    }
+});
+  
 
 getWeather();

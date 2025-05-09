@@ -6,6 +6,7 @@ body {
   padding: 2rem;
   background-size: cover;
   height: 100%;
+  user-select: none;
 }
 
 .top-bar {

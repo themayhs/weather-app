@@ -6,6 +6,7 @@ body {
   padding: 2rem;
   background-size: cover;
   height: 100%;
+  user-select: none;
 }
 
 .top-bar {
@@ -107,7 +108,7 @@ body {
   white-space: nowrap;
   overflow-y: auto;
   padding-top: 0px;
-  /* justify-content: center; */
+  align-items: center;
 }
 
 .scrolling-zone-hours img {
@@ -158,6 +159,21 @@ body {
 input[type="search"]::-webkit-search-cancel-button {
   display: none;
 }
+
+/* .scrolling-zone-hours::-webkit-scrollbar {
+  width: 2px;
+  height: 8px;
+}
+
+.scrolling-zone-hours::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrolling-zone-hours::-webkit-scrollbar-thumb {
+  background: gray;
+  border-radius: 20px;
+  width: 5px;
+} */
 
 /* ::-webkit-scrollbar {
   width: 0px;
